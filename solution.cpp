@@ -9,7 +9,7 @@ void Solution::print()
         std::cout << sequence[i] << " - ";
     }
     std::cout << sequence[Data::getInstance().totalRequests] << std::endl;
-    std::cout << "Cost: " << penalty << std::endl;
+    std::cout << "Total Penalty: " << penalty << std::endl;
 }
 
 void Solution::copy(const Solution &other)
