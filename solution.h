@@ -9,12 +9,12 @@
 
 struct Solution
 {
-    std::vector<int> route;
-    double cost;
+    std::vector<int> sequence;
+    double penalty;
 
-    Solution(std::vector<int> route, double cost) : route(route), cost(cost) {}
-    Solution() : route(std::vector<int>(Data::getInstance().totalRequests + 1)), cost(0) {}
-    Solution(const Solution &s) : route(s.route), cost(s.cost) {}
+    Solution(std::vector<int> sequence, double penalty) : sequence(sequence), penalty(penalty) {}
+    Solution() : sequence(std::vector<int>(Data::getInstance().totalRequests)), penalty(0) {}
+    Solution(const Solution &s) : sequence(s.sequence), penalty(s.penalty) {}
 
     void buildTrivial();
 

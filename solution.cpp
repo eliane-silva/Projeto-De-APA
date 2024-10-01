@@ -6,91 +6,148 @@ void Solution::print()
     std::cout << "Route: ";
     for (int i = 0; i < Data::getInstance().totalRequests; i++)
     {
-        std::cout << route[i] << " - ";
+        std::cout << sequence[i] << " - ";
     }
-    std::cout << route[Data::getInstance().totalRequests] << std::endl;
-    std::cout << "Cost: " << cost << std::endl;
+    std::cout << sequence[Data::getInstance().totalRequests] << std::endl;
+    std::cout << "Cost: " << penalty << std::endl;
 }
 
 void Solution::copy(const Solution &other)
 {
-    route = std::vector<int>(other.route);
-    cost = other.cost;
+    sequence = std::vector<int>(other.sequence);
+    penalty = other.penalty;
 }
 
 struct InsertionInfo
 {
-    int insertedNode;
-    int removedEdge;
-    double cost;
+    int selectedJuice;
+    int insertPosition;
+    double penalty;
 };
 
-std::vector<InsertionInfo> calculateInsertionCosts(Solution &s, int solutionSize, std::vector<int> &CL)
+double calculateSingleInsertionDelta(Solution &s, int insertionPosition, int selectedJuice, int solutionSize)
 {
     Data &data = Data::getInstance();
-    std::vector<InsertionInfo> costsList = std::vector<InsertionInfo>((solutionSize - 1) * CL.size());
-
-    int c = 0;
-    for (int e = 0; e < solutionSize - 1; e++)
+    double penalty = 0;
+    if (insertionPosition == 0)
     {
-        int i = s.route[e];
-        int j = s.route[e + 1];
+        int actualTime = data.preparationTimes[data.totalRequests][selectedJuice];
+        actualTime += data.productionTimes[selectedJuice];
+        penalty = std::max(0, (actualTime - data.deadlines[selectedJuice]) * data.delayPenalties[selectedJuice]);
 
-        for (int k : CL)
+        actualTime += data.preparationTimes[selectedJuice][s.sequence[0]];
+        actualTime += data.productionTimes[s.sequence[0]];
+        penalty += std::max(0, (actualTime - data.deadlines[s.sequence[0]]) * data.delayPenalties[s.sequence[0]]);
+
+        for (int i = 1; i < solutionSize; i++)
         {
-            costsList[c].cost = data.matrizAdj[i][k] + data.matrizAdj[k][j] - data.matrizAdj[i][j];
-            costsList[c].insertedNode = k;
-            costsList[c].removedEdge = e;
-            c++;
+            actualTime += data.preparationTimes[s.sequence[i - 1]][s.sequence[i]];
+            actualTime += data.productionTimes[s.sequence[i]];
+            penalty += std::max(0, (actualTime - data.deadlines[s.sequence[i]]) * data.delayPenalties[s.sequence[i]]);
+        }
+    }
+    else if (insertionPosition == solutionSize)
+    {
+        int actualTime = data.preparationTimes[data.totalRequests][s.sequence[0]];
+        actualTime += data.productionTimes[s.sequence[0]];
+        penalty = std::max(0, (actualTime - data.deadlines[s.sequence[0]]) * data.delayPenalties[s.sequence[0]]);
+
+        for (int i = 1; i < solutionSize; i++)
+        {
+            actualTime += data.preparationTimes[s.sequence[i - 1]][s.sequence[i]];
+            actualTime += data.productionTimes[s.sequence[i]];
+            penalty += std::max(0, (actualTime - data.deadlines[s.sequence[i]]) * data.delayPenalties[s.sequence[i]]);
+        }
+
+        actualTime += data.preparationTimes[solutionSize - 1][selectedJuice];
+        actualTime += data.productionTimes[selectedJuice];
+        penalty = std::max(0, (actualTime - data.deadlines[selectedJuice]) * data.delayPenalties[selectedJuice]);
+    }
+    else 
+    {
+        int actualTime = data.preparationTimes[data.totalRequests][s.sequence[0]];
+        actualTime += data.productionTimes[s.sequence[0]];
+        penalty = std::max(0, (actualTime - data.deadlines[s.sequence[0]]) * data.delayPenalties[s.sequence[0]]);
+
+        for (int i = 1; i < insertionPosition; i++)
+        {
+            actualTime += data.preparationTimes[s.sequence[i - 1]][s.sequence[i]];
+            actualTime += data.productionTimes[s.sequence[i]];
+            penalty += std::max(0, (actualTime - data.deadlines[s.sequence[i]]) * data.delayPenalties[s.sequence[i]]);
+        }
+
+        actualTime += data.preparationTimes[s.sequence[insertionPosition - 1]][selectedJuice];
+        actualTime += data.productionTimes[selectedJuice];
+        penalty += std::max(0, (actualTime - data.deadlines[selectedJuice]) * data.delayPenalties[selectedJuice]);
+
+        actualTime += data.preparationTimes[selectedJuice][s.sequence[insertionPosition]];
+        actualTime += data.productionTimes[s.sequence[insertionPosition]];
+        penalty += std::max(0, (actualTime - data.deadlines[s.sequence[insertionPosition]]) * data.delayPenalties[s.sequence[insertionPosition]]);
+
+        for (int i = insertionPosition + 1; i < solutionSize; i++)
+        {
+            actualTime += data.preparationTimes[s.sequence[i - 1]][s.sequence[i]];
+            actualTime += data.productionTimes[s.sequence[i]];
+            penalty += std::max(0, (actualTime - data.deadlines[s.sequence[i]]) * data.delayPenalties[s.sequence[i]]);
         }
     }
 
-    std::sort(costsList.begin(), costsList.end(), [](InsertionInfo a, InsertionInfo b)
-              { return a.cost < b.cost; });
+    return penalty - s.penalty;
+}
 
-    return costsList;
+std::vector<InsertionInfo> calculateInsertionPenaltiesList(Solution &s, int solutionSize, std::vector<int> &CL)
+{
+    Data &data = Data::getInstance();
+    std::vector<InsertionInfo> penaltiesList = std::vector<InsertionInfo>((solutionSize + 1) * CL.size());
+
+    int penaltyListIndex = 0;
+    for (int insertPos = 0; insertPos <= solutionSize; insertPos++)
+    {
+        for (int juice : CL)
+        {
+            penaltiesList[penaltyListIndex].penalty = calculateSingleInsertionDelta(s, insertPos, juice, solutionSize);
+            penaltiesList[penaltyListIndex].selectedJuice = juice;
+            penaltiesList[penaltyListIndex].insertPosition = insertPos;
+            penaltyListIndex++;
+        }
+    }
+
+    std::sort(penaltiesList.begin(), penaltiesList.end(), [](InsertionInfo a, InsertionInfo b) { return a.penalty < b.penalty; });
+
+    return penaltiesList;
 }
 
 void Solution::greedyBuild()
 {
     Data &data = Data::getInstance();
-    int i;
 
-    // Criação do CL
+    // Criação do Candidate List
     std::vector<int> CL;
-    for (i = 2; i <= data.totalRequests; i++)
+    for (int i = 0; i < data.totalRequests; i++)
         CL.push_back(i);
 
-    // Escolha de 3 nós aleatórios
-    std::set<int> initialNodes;
-    while (initialNodes.size() < 3)
-        initialNodes.insert(2 + std::rand() % (data.totalRequests - 1));
+    // Escolha de um suco aleatório
+    int initialJuice = std::rand() % data.totalRequests;
 
-    // Inserção dos nós e ajuste do CL
-    i = 0;
-    route[i++] = 1;
-    for (int node : initialNodes)
-    {
-        cost += data.matrizAdj[route[i - 1]][node];
-        route[i++] = node;
-        CL.erase(std::find(CL.begin(), CL.end(), node));
-    }
-    cost += data.matrizAdj[route[i - 1]][1];
-    route[i] = 1;
+    // Inserção do suco na sequência e ajuste do Candidate List
+    int actualTime = data.preparationTimes[data.totalRequests][sequence[0]];
+    actualTime += data.productionTimes[sequence[0]];
+    penalty = std::max(0, (actualTime - data.deadlines[sequence[0]]) * data.delayPenalties[sequence[0]]);
+    CL.erase(std::find(CL.begin(), CL.end(), sequence[0]));
 
-    int solutionSize = 5;
+    int solutionSize = 1;
     while (!CL.empty())
     {
-        std::vector<InsertionInfo> costsList = calculateInsertionCosts(*this, solutionSize, CL);
-        double alpha = std::min((double)rand() / RAND_MAX + 1e-6, 1.0);
+        std::vector<InsertionInfo> penaltiesList = calculateInsertionPenaltiesList(*this, solutionSize, CL);
+        double alpha = 0.1;
 
-        int selectedNode = rand() % ((int)ceil(alpha * costsList.size()));
-        InsertionInfo addedNode = costsList[selectedNode];
+        int selectedJuice = rand() % ((int)std::ceil(alpha * penaltiesList.size()));
+        InsertionInfo addedJuice = penaltiesList[selectedJuice];
 
-        route.insert(route.begin() + addedNode.removedEdge + 1, addedNode.insertedNode);
-        cost += addedNode.cost;
+        sequence.insert(sequence.begin() + addedJuice.insertPosition, addedJuice.selectedJuice);
+        penalty += addedJuice.penalty;
         solutionSize++;
-        CL.erase(std::find(CL.begin(), CL.end(), addedNode.insertedNode));
+        CL.erase(std::find(CL.begin(), CL.end(), addedJuice.selectedJuice));
     }
 }
 
