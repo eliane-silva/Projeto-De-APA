@@ -28,7 +28,7 @@ struct Solution
 
     static void connect(Data &data, int &actualTime, double &penalty, int a, int b);
 
-    double evaluateSwap(const int i, const int j);
+    double evaluateSwap(const int pos1, const int pos2);
 
     double evaluate2Opt(const int i, const int j);
 
