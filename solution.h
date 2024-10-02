@@ -26,6 +26,8 @@ struct Solution
 
     void copy(const Solution &other);
 
+    static void connect(Data &data, int &actualTime, double &penalty, int a, int b);
+
     double evaluateSwap(const int i, const int j);
 
     double evaluate2Opt(const int i, const int j);

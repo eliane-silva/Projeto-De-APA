@@ -28,67 +28,44 @@ struct InsertionInfo
 double calculateSingleInsertionDelta(Solution &s, int insertionPosition, int selectedJuice, int solutionSize)
 {
     Data &data = Data::getInstance();
+    int actualTime = 0;
     double penalty = 0;
     if (insertionPosition == 0)
     {
-        int actualTime = data.preparationTimes[data.totalRequests][selectedJuice];
-        actualTime += data.productionTimes[selectedJuice];
-        penalty = std::max(0, (actualTime - data.deadlines[selectedJuice]) * data.delayPenalties[selectedJuice]);
-
-        actualTime += data.preparationTimes[selectedJuice][s.sequence[0]];
-        actualTime += data.productionTimes[s.sequence[0]];
-        penalty += std::max(0, (actualTime - data.deadlines[s.sequence[0]]) * data.delayPenalties[s.sequence[0]]);
+        Solution::connect(data, actualTime, penalty, data.totalRequests, selectedJuice);
+        Solution::connect(data, actualTime, penalty, selectedJuice, s.sequence[0]);
 
         for (int i = 1; i < solutionSize; i++)
         {
-            actualTime += data.preparationTimes[s.sequence[i - 1]][s.sequence[i]];
-            actualTime += data.productionTimes[s.sequence[i]];
-            penalty += std::max(0, (actualTime - data.deadlines[s.sequence[i]]) * data.delayPenalties[s.sequence[i]]);
+            Solution::connect(data, actualTime, penalty, s.sequence[i - 1], s.sequence[i]);
         }
     }
     else if (insertionPosition == solutionSize)
     {
-        int actualTime = data.preparationTimes[data.totalRequests][s.sequence[0]];
-        actualTime += data.productionTimes[s.sequence[0]];
-        penalty = std::max(0, (actualTime - data.deadlines[s.sequence[0]]) * data.delayPenalties[s.sequence[0]]);
+        Solution::connect(data, actualTime, penalty, data.totalRequests, s.sequence[0]);
 
         for (int i = 1; i < solutionSize; i++)
         {
-            actualTime += data.preparationTimes[s.sequence[i - 1]][s.sequence[i]];
-            actualTime += data.productionTimes[s.sequence[i]];
-            penalty += std::max(0, (actualTime - data.deadlines[s.sequence[i]]) * data.delayPenalties[s.sequence[i]]);
+            Solution::connect(data, actualTime, penalty, s.sequence[i - 1], s.sequence[i]);
         }
 
-        actualTime += data.preparationTimes[solutionSize - 1][selectedJuice];
-        actualTime += data.productionTimes[selectedJuice];
-        penalty = std::max(0, (actualTime - data.deadlines[selectedJuice]) * data.delayPenalties[selectedJuice]);
+        Solution::connect(data, actualTime, penalty, s.sequence[solutionSize - 1], selectedJuice);
     }
     else 
     {
-        int actualTime = data.preparationTimes[data.totalRequests][s.sequence[0]];
-        actualTime += data.productionTimes[s.sequence[0]];
-        penalty = std::max(0, (actualTime - data.deadlines[s.sequence[0]]) * data.delayPenalties[s.sequence[0]]);
+        Solution::connect(data, actualTime, penalty, data.totalRequests, s.sequence[0]);
 
         for (int i = 1; i < insertionPosition; i++)
         {
-            actualTime += data.preparationTimes[s.sequence[i - 1]][s.sequence[i]];
-            actualTime += data.productionTimes[s.sequence[i]];
-            penalty += std::max(0, (actualTime - data.deadlines[s.sequence[i]]) * data.delayPenalties[s.sequence[i]]);
+            Solution::connect(data, actualTime, penalty, s.sequence[i - 1], s.sequence[i]);
         }
 
-        actualTime += data.preparationTimes[s.sequence[insertionPosition - 1]][selectedJuice];
-        actualTime += data.productionTimes[selectedJuice];
-        penalty += std::max(0, (actualTime - data.deadlines[selectedJuice]) * data.delayPenalties[selectedJuice]);
-
-        actualTime += data.preparationTimes[selectedJuice][s.sequence[insertionPosition]];
-        actualTime += data.productionTimes[s.sequence[insertionPosition]];
-        penalty += std::max(0, (actualTime - data.deadlines[s.sequence[insertionPosition]]) * data.delayPenalties[s.sequence[insertionPosition]]);
+        Solution::connect(data, actualTime, penalty, s.sequence[insertionPosition - 1], selectedJuice);
+        Solution::connect(data, actualTime, penalty, selectedJuice, s.sequence[insertionPosition]);
 
         for (int i = insertionPosition + 1; i < solutionSize; i++)
         {
-            actualTime += data.preparationTimes[s.sequence[i - 1]][s.sequence[i]];
-            actualTime += data.productionTimes[s.sequence[i]];
-            penalty += std::max(0, (actualTime - data.deadlines[s.sequence[i]]) * data.delayPenalties[s.sequence[i]]);
+            Solution::connect(data, actualTime, penalty, s.sequence[i - 1], s.sequence[i]);
         }
     }
 
@@ -115,6 +92,13 @@ std::vector<InsertionInfo> calculateInsertionPenaltiesList(Solution &s, int solu
     std::sort(penaltiesList.begin(), penaltiesList.end(), [](InsertionInfo a, InsertionInfo b) { return a.penalty < b.penalty; });
 
     return penaltiesList;
+}
+
+void Solution::connect(Data &data, int &actualTime, double &penalty, int a, int b)
+{
+    actualTime += data.preparationTimes[a][b];
+    actualTime += data.productionTimes[b];
+    penalty += std::max(0, (actualTime - data.deadlines[b]) * data.delayPenalties[b]);
 }
 
 void Solution::greedyBuild()
