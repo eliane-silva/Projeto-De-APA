@@ -141,7 +141,7 @@ Solution solve()
 Solution ILS(int maxIter, int maxIterIls)
 {
     Solution bestOfAll;
-    bestOfAll.cost = INFINITY;
+    bestOfAll.penalty = INFINITY;
 
     for (int i = 0; i < maxIter; i++)
     {
@@ -153,7 +153,7 @@ Solution ILS(int maxIter, int maxIterIls)
         while (iterIls <= maxIterIls)
         {
             RVND(s);
-            if (s.cost < best.cost)
+            if (s.penalty < best.penalty)
             {
                 best = s;
                 iterIls = 0;
@@ -163,7 +163,7 @@ Solution ILS(int maxIter, int maxIterIls)
             iterIls++;
         }
 
-        if (best.cost < bestOfAll.cost)
+        if (best.penalty < bestOfAll.penalty)
             bestOfAll = best;
     }
     return bestOfAll;

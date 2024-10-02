@@ -3,12 +3,12 @@
 
 void Solution::print()
 {
-    std::cout << "Route: ";
-    for (int i = 0; i < Data::getInstance().totalRequests; i++)
+    std::cout << "Penalty: ";
+    for (int i = 0; i < Data::getInstance().totalRequests - 1; i++)
     {
         std::cout << sequence[i] << " - ";
     }
-    std::cout << sequence[Data::getInstance().totalRequests] << std::endl;
+    std::cout << sequence[Data::getInstance().totalRequests - 1] << std::endl;
     std::cout << "Total Penalty: " << penalty << std::endl;
 }
 
@@ -101,13 +101,13 @@ std::vector<InsertionInfo> calculateInsertionPenaltiesList(Solution &s, int solu
     std::vector<InsertionInfo> penaltiesList = std::vector<InsertionInfo>((solutionSize + 1) * CL.size());
 
     int penaltyListIndex = 0;
-    for (int insertPos = 0; insertPos <= solutionSize; insertPos++)
+    for (int insertPosition = 0; insertPosition <= solutionSize; insertPosition++)
     {
         for (int juice : CL)
         {
-            penaltiesList[penaltyListIndex].penalty = calculateSingleInsertionDelta(s, insertPos, juice, solutionSize);
+            penaltiesList[penaltyListIndex].penalty = calculateSingleInsertionDelta(s, insertPosition, juice, solutionSize);
             penaltiesList[penaltyListIndex].selectedJuice = juice;
-            penaltiesList[penaltyListIndex].insertPosition = insertPos;
+            penaltiesList[penaltyListIndex].insertPosition = insertPosition;
             penaltyListIndex++;
         }
     }
@@ -128,6 +128,7 @@ void Solution::greedyBuild()
 
     // Escolha de um suco aleatório
     int initialJuice = std::rand() % data.totalRequests;
+    sequence[0] = initialJuice;
 
     // Inserção do suco na sequência e ajuste do Candidate List
     int actualTime = data.preparationTimes[data.totalRequests][sequence[0]];
@@ -186,14 +187,14 @@ double Solution::evaluateSwap(const int i, const int j)
     if ((j == i + 1))
     {
 
-        a_subtrair = data.matrizAdj[route[i - 1]][route[i]] + data.matrizAdj[route[j]][route[j + 1]]; // arcos que serão "cortados" da solução
-        a_somar = data.matrizAdj[route[i - 1]][route[j]] + data.matrizAdj[route[i]][route[j + 1]];    // arcos que serão "adicionados" na solução
+        a_subtrair = data.matrizAdj[sequence[i - 1]][sequence[i]] + data.matrizAdj[sequence[j]][sequence[j + 1]]; // arcos que serão "cortados" da solução
+        a_somar = data.matrizAdj[sequence[i - 1]][sequence[j]] + data.matrizAdj[sequence[i]][sequence[j + 1]];    // arcos que serão "adicionados" na solução
     }
     else
     {
-        a_subtrair = data.matrizAdj[route[i - 1]][route[i]] + data.matrizAdj[route[i]][route[i + 1]] + data.matrizAdj[route[j - 1]][route[j]] + data.matrizAdj[route[j]][route[j + 1]];
+        a_subtrair = data.matrizAdj[sequence[i - 1]][sequence[i]] + data.matrizAdj[sequence[i]][sequence[i + 1]] + data.matrizAdj[sequence[j - 1]][sequence[j]] + data.matrizAdj[sequence[j]][sequence[j + 1]];
 
-        a_somar = data.matrizAdj[route[i - 1]][route[j]] + data.matrizAdj[route[j]][route[i + 1]] + data.matrizAdj[route[j - 1]][route[i]] + data.matrizAdj[route[i]][route[j + 1]];
+        a_somar = data.matrizAdj[sequence[i - 1]][sequence[j]] + data.matrizAdj[sequence[j]][sequence[i + 1]] + data.matrizAdj[sequence[j - 1]][sequence[i]] + data.matrizAdj[sequence[i]][sequence[j + 1]];
     }
 
     delta = a_somar - a_subtrair; // calcula a diferença de custo da solução após sofrer um movimento
@@ -209,8 +210,8 @@ double Solution::evaluate2Opt(const int i, const int j)
 
     double a_subtrair, a_somar, delta;
 
-    a_subtrair = data.matrizAdj[route[i - 1]][route[i]] + data.matrizAdj[route[j]][route[j + 1]];
-    a_somar = data.matrizAdj[route[i]][route[j + 1]] + data.matrizAdj[route[j]][route[i - 1]];
+    a_subtrair = data.matrizAdj[sequence[i - 1]][sequence[i]] + data.matrizAdj[sequence[j]][sequence[j + 1]];
+    a_somar = data.matrizAdj[sequence[i]][sequence[j + 1]] + data.matrizAdj[sequence[j]][sequence[i - 1]];
 
     delta = a_somar - a_subtrair;
 
@@ -223,8 +224,8 @@ double Solution::evaluateOrOpt(const int i, const int j, const int n)
 
     double a_subtrair, a_somar, delta;
 
-    a_subtrair = data.matrizAdj[route[i]][route[i + 1]] + data.matrizAdj[route[j]][route[j - 1]] + data.matrizAdj[route[j + n - 1]][route[j + n]];
-    a_somar = data.matrizAdj[route[i]][route[j]] + data.matrizAdj[route[j + n - 1]][route[i + 1]] + data.matrizAdj[route[j - 1]][route[j + n]];
+    a_subtrair = data.matrizAdj[sequence[i]][sequence[i + 1]] + data.matrizAdj[sequence[j]][sequence[j - 1]] + data.matrizAdj[sequence[j + n - 1]][sequence[j + n]];
+    a_somar = data.matrizAdj[sequence[i]][sequence[j]] + data.matrizAdj[sequence[j + n - 1]][sequence[i + 1]] + data.matrizAdj[sequence[j - 1]][sequence[j + n]];
 
     delta = a_somar - a_subtrair;
 
@@ -239,13 +240,13 @@ double Solution::evaluateDoubleBridge(const int pos1, const int len1, const int 
 
     if (pos1 + len1 == pos2)
     {
-        a_subtrair = data.matrizAdj[route[pos1 - 1]][route[pos1]] + data.matrizAdj[route[pos2 - 1]][route[pos2]] + data.matrizAdj[route[pos2 + len2 - 1]][route[pos2 + len2]];
-        a_somar = data.matrizAdj[route[pos1 - 1]][route[pos2]] + data.matrizAdj[route[pos2 + len2 - 1]][route[pos1]] + data.matrizAdj[route[pos2 - 1]][route[pos2 + len2]];
+        a_subtrair = data.matrizAdj[sequence[pos1 - 1]][sequence[pos1]] + data.matrizAdj[sequence[pos2 - 1]][sequence[pos2]] + data.matrizAdj[sequence[pos2 + len2 - 1]][sequence[pos2 + len2]];
+        a_somar = data.matrizAdj[sequence[pos1 - 1]][sequence[pos2]] + data.matrizAdj[sequence[pos2 + len2 - 1]][sequence[pos1]] + data.matrizAdj[sequence[pos2 - 1]][sequence[pos2 + len2]];
     }
     else
     {
-        a_subtrair = data.matrizAdj[route[pos1 - 1]][route[pos1]] + data.matrizAdj[route[pos1 + len1 - 1]][route[pos1 + len1]] + data.matrizAdj[route[pos2 - 1]][route[pos2]] + data.matrizAdj[route[pos2 + len2 - 1]][route[pos2 + len2]];
-        a_somar = data.matrizAdj[route[pos1 - 1]][route[pos2]] + data.matrizAdj[route[pos2 + len2 - 1]][route[pos1 + len1]] + data.matrizAdj[route[pos2 - 1]][route[pos1]] + data.matrizAdj[route[pos1 + len1 - 1]][route[pos2 + len2]];
+        a_subtrair = data.matrizAdj[sequence[pos1 - 1]][sequence[pos1]] + data.matrizAdj[sequence[pos1 + len1 - 1]][sequence[pos1 + len1]] + data.matrizAdj[sequence[pos2 - 1]][sequence[pos2]] + data.matrizAdj[sequence[pos2 + len2 - 1]][sequence[pos2 + len2]];
+        a_somar = data.matrizAdj[sequence[pos1 - 1]][sequence[pos2]] + data.matrizAdj[sequence[pos2 + len2 - 1]][sequence[pos1 + len1]] + data.matrizAdj[sequence[pos2 - 1]][sequence[pos1]] + data.matrizAdj[sequence[pos1 + len1 - 1]][sequence[pos2 + len2]];
     }
     delta = a_somar - a_subtrair;
 
@@ -255,47 +256,47 @@ double Solution::evaluateDoubleBridge(const int pos1, const int len1, const int 
 void Solution::swap(const int i, const int j)
 {
     Data &data = Data::getInstance();
-    cost += evaluateSwap(i, j); // somar a diferença de custo da solução após sofrer um movimento
+    penalty += evaluateSwap(i, j); // somar a diferença de custo da solução após sofrer um movimento
                                 // implica em atualizar o custo da solução
-    int aux = route[i];
-    route[i] = route[j];
-    route[j] = aux;
+    int aux = sequence[i];
+    sequence[i] = sequence[j];
+    sequence[j] = aux;
 }
 
 void Solution::twoOpt(const int i, const int j)
 {
     Data &data = Data::getInstance();
-    cost += evaluate2Opt(i, j);
+    penalty += evaluate2Opt(i, j);
 
-    std::reverse(route.begin() + i, route.begin() + j + 1);
+    std::reverse(sequence.begin() + i, sequence.begin() + j + 1);
 }
 
 void Solution::orOpt(const int i, const int j, const int n)
 {
     Data &data = Data::getInstance();
-    cost += evaluateOrOpt(i, j, n);
+    penalty += evaluateOrOpt(i, j, n);
 
-    std::vector<int> temp(route.begin() + j, route.begin() + j + n);
+    std::vector<int> temp(sequence.begin() + j, sequence.begin() + j + n);
 
-    route.erase(route.begin() + j, route.begin() + j + n);
+    sequence.erase(sequence.begin() + j, sequence.begin() + j + n);
 
     if (i > j)
-        route.insert(route.begin() + i - n + 1, temp.begin(), temp.end());
+        sequence.insert(sequence.begin() + i - n + 1, temp.begin(), temp.end());
     else
-        route.insert(route.begin() + i + 1, temp.begin(), temp.end());
+        sequence.insert(sequence.begin() + i + 1, temp.begin(), temp.end());
 }
 
 void Solution::doubleBridge(const int pos1, const int len1, const int pos2, const int len2)
 {
     Data &data = Data::getInstance();
-    cost += evaluateDoubleBridge(pos1, len1, pos2, len2);
+    penalty += evaluateDoubleBridge(pos1, len1, pos2, len2);
 
-    std::vector<int> tmp1(route.begin() + pos1, route.begin() + pos1 + len1);
-    std::vector<int> tmp2(route.begin() + pos2, route.begin() + pos2 + len2);
+    std::vector<int> tmp1(sequence.begin() + pos1, sequence.begin() + pos1 + len1);
+    std::vector<int> tmp2(sequence.begin() + pos2, sequence.begin() + pos2 + len2);
 
-    route.erase(route.begin() + pos2, route.begin() + pos2 + len2);
-    route.insert(route.begin() + pos2, tmp1.begin(), tmp1.end());
+    sequence.erase(sequence.begin() + pos2, sequence.begin() + pos2 + len2);
+    sequence.insert(sequence.begin() + pos2, tmp1.begin(), tmp1.end());
 
-    route.erase(route.begin() + pos1, route.begin() + pos1 + len1);
-    route.insert(route.begin() + pos1, tmp2.begin(), tmp2.end());
+    sequence.erase(sequence.begin() + pos1, sequence.begin() + pos1 + len1);
+    sequence.insert(sequence.begin() + pos1, tmp2.begin(), tmp2.end());
 }
