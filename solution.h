@@ -13,7 +13,7 @@ struct Solution
     double penalty;
 
     Solution(std::vector<int> sequence, double penalty) : sequence(sequence), penalty(penalty) {}
-    Solution() : sequence(std::vector<int>(Data::getInstance().totalRequests)), penalty(0) {}
+    Solution() : sequence(std::vector<int>()), penalty(0) {}
     Solution(const Solution &s) : sequence(s.sequence), penalty(s.penalty) {}
 
     void buildTrivial();
@@ -26,7 +26,9 @@ struct Solution
 
     void copy(const Solution &other);
 
-    double evaluateSwap(const int i, const int j);
+    static void connect(Data &data, int &actualTime, double &penalty, int a, int b);
+
+    double evaluateSwap(const int pos1, const int pos2);
 
     double evaluate2Opt(const int i, const int j);
 

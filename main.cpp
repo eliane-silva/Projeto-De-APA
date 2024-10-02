@@ -12,8 +12,9 @@ void executeTSPAlgorithm(char **argv)
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    int maxIterILS = data.totalRequests >= 150 ? data.totalRequests / 2 : data.totalRequests;
-    Solution s = ILS(50, maxIterILS);
+    Solution s = solve();
+    // int maxIterILS = data.totalRequests >= 150 ? data.totalRequests / 2 : data.totalRequests;
+    // Solution s = ILS(50, maxIterILS);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> programDuration = end - start;
