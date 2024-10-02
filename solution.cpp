@@ -25,11 +25,13 @@ struct InsertionInfo
     double penalty;
 };
 
-double calculateSingleInsertionDelta(Solution &s, int insertionPosition, int selectedJuice, int solutionSize)
+double calculateSingleInsertionDelta(Solution &s, int insertionPosition, int selectedJuice)
 {
     Data &data = Data::getInstance();
     int actualTime = 0;
     double penalty = 0;
+    int solutionSize = s.sequence.size();
+
     if (insertionPosition == 0)
     {
         Solution::connect(data, actualTime, penalty, data.totalRequests, selectedJuice);
@@ -72,9 +74,10 @@ double calculateSingleInsertionDelta(Solution &s, int insertionPosition, int sel
     return penalty - s.penalty;
 }
 
-std::vector<InsertionInfo> calculateInsertionPenaltiesList(Solution &s, int solutionSize, std::vector<int> &CL)
+std::vector<InsertionInfo> calculateInsertionPenaltiesList(Solution &s, std::vector<int> &CL)
 {
     Data &data = Data::getInstance();
+    int solutionSize = s.sequence.size();
     std::vector<InsertionInfo> penaltiesList = std::vector<InsertionInfo>((solutionSize + 1) * CL.size());
 
     int penaltyListIndex = 0;
@@ -82,7 +85,7 @@ std::vector<InsertionInfo> calculateInsertionPenaltiesList(Solution &s, int solu
     {
         for (int juice : CL)
         {
-            penaltiesList[penaltyListIndex].penalty = calculateSingleInsertionDelta(s, insertPosition, juice, solutionSize);
+            penaltiesList[penaltyListIndex].penalty = calculateSingleInsertionDelta(s, insertPosition, juice);
             penaltiesList[penaltyListIndex].selectedJuice = juice;
             penaltiesList[penaltyListIndex].insertPosition = insertPosition;
             penaltyListIndex++;
@@ -112,7 +115,7 @@ void Solution::greedyBuild()
 
     // Escolha de um suco aleatório
     int initialJuice = std::rand() % data.totalRequests;
-    sequence[0] = initialJuice;
+    sequence.insert(sequence.begin(), initialJuice);
 
     // Inserção do suco na sequência e ajuste do Candidate List
     int actualTime = data.preparationTimes[data.totalRequests][sequence[0]];
@@ -120,10 +123,9 @@ void Solution::greedyBuild()
     penalty = std::max(0, (actualTime - data.deadlines[sequence[0]]) * data.delayPenalties[sequence[0]]);
     CL.erase(std::find(CL.begin(), CL.end(), sequence[0]));
 
-    int solutionSize = 1;
     while (!CL.empty())
     {
-        std::vector<InsertionInfo> penaltiesList = calculateInsertionPenaltiesList(*this, solutionSize, CL);
+        std::vector<InsertionInfo> penaltiesList = calculateInsertionPenaltiesList(*this, CL);
         double alpha = 0.1;
 
         int selectedJuice = rand() % ((int)std::ceil(alpha * penaltiesList.size()));
@@ -131,7 +133,6 @@ void Solution::greedyBuild()
 
         sequence.insert(sequence.begin() + addedJuice.insertPosition, addedJuice.selectedJuice);
         penalty += addedJuice.penalty;
-        solutionSize++;
         CL.erase(std::find(CL.begin(), CL.end(), addedJuice.selectedJuice));
     }
 }

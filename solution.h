@@ -13,7 +13,7 @@ struct Solution
     double penalty;
 
     Solution(std::vector<int> sequence, double penalty) : sequence(sequence), penalty(penalty) {}
-    Solution() : sequence(std::vector<int>(Data::getInstance().totalRequests)), penalty(0) {}
+    Solution() : sequence(std::vector<int>()), penalty(0) {}
     Solution(const Solution &s) : sequence(s.sequence), penalty(s.penalty) {}
 
     void buildTrivial();
