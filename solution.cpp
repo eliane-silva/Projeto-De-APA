@@ -303,14 +303,116 @@ double Solution::evaluateOrOpt(const int i, const int j, const int n)
 {
     Data &data = Data::getInstance();
 
-    double a_subtrair, a_somar, delta;
+    int actualTime = 0;
+    double newPenalty = 0;
 
-    a_subtrair = data.matrizAdj[sequence[i]][sequence[i + 1]] + data.matrizAdj[sequence[j]][sequence[j - 1]] + data.matrizAdj[sequence[j + n - 1]][sequence[j + n]];
-    a_somar = data.matrizAdj[sequence[i]][sequence[j]] + data.matrizAdj[sequence[j + n - 1]][sequence[i + 1]] + data.matrizAdj[sequence[j - 1]][sequence[j + n]];
+    //mesma sequência
+    if(i == j-1)
+    {
+        return 0;
+    }
 
-    delta = a_somar - a_subtrair;
+    //i<j
+    else if(i < j)
+    {   
+        //conexão do i ou até o i
+        if(i == 0)
+        {
+            connect(data, actualTime, penalty, data.totalRequests, this->sequence[i]);
+        }
+        else{
+            connect(data, actualTime, penalty, data.totalRequests, this->sequence[0]);
+            for(int k = 0; k < i; k++)
+            {
+                connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+            }
+        }
 
-    return delta;
+        //conectando o i ate o j, como ja foi validado se i == j - 1, não preciso verificar se há algo entre os dois, pois sempre vai haver
+        for(int k = i; k < j; k++)
+        {
+            connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+        }
+
+        //adicionando o j depois o i
+        for(int l = j; l < j + n - 1; l++)
+        {
+            connect(data, actualTime, penalty, this->sequence[l], this->sequence[l+1]);
+        }
+
+        //verificando se há algo depois do j+n
+        if(j+n-1<data.totalRequests)
+        {
+            for(int m= j + n - 1; m < data.totalRequests; m++)
+            {
+                connect(data, actualTime, penalty, this->sequence[m], this->sequence[m+1]);
+            }
+        }       
+    }
+
+    //j<i
+    else
+    {   
+        //caso o j seja a primeira posição
+        if(j == 0)
+        {
+            //verificando se há algo entre j+n ate o i
+            //conexão até o i
+            if(j+n == i)
+            {
+                connect(data, actualTime, penalty, data.totalRequests, this->sequence[i]);
+            }
+            else
+            {
+                connect(data, actualTime, penalty, data.totalRequests, this->sequence[j+n]);
+
+                for(int k = j + n; k < i; k++)
+                {
+                    connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+                }
+            }
+        }
+
+        //caso o j nao seja a primeira posição
+        else{
+            connect(data, actualTime, penalty, data.totalRequests, this->sequence[0]);
+            for(int k = 0; k < j - 1; k++)
+            {
+                connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+            }
+
+            //verificando se há algo entre j+n ate o i
+            //conexão até o i
+            if(j+n == i)
+            {
+                connect(data, actualTime, penalty, this->sequence[j+n-1], this->sequence[i]);
+            }
+            else
+            {
+                for(int k = j + n - 1; k < i; k++)
+                {
+                    connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+                }
+            }
+        }
+
+        //conectando o j + n depois do i
+        for(int k = i; k < j + n - 1; k++)
+        {
+            connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+        }
+
+        //verificando se há algo depois do i para inserir depois do j + n
+        if(i == data.totalRequests)
+        {
+            for(int k = j + n - 1; k < data.totalRequests; k++)
+            {
+                connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+            }
+        } 
+    }
+
+    return newPenalty - this->penalty;
 }
 
 double Solution::evaluateDoubleBridge(const int pos1, const int len1, const int pos2, const int len2)
