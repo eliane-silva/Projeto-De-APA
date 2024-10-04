@@ -285,18 +285,45 @@ double Solution::evaluateSwap(const int pos1, const int pos2)
     return newPenalty - this->penalty;
 }
 
-double Solution::evaluate2Opt(const int i, const int j)
+double Solution::evaluate2Opt(const int pos1, const int pos2)
 {
     Data &data = Data::getInstance();
 
-    double a_subtrair, a_somar, delta;
+    int actualTime = 0;
+    double newPenalty = 0;
 
-    a_subtrair = data.matrizAdj[sequence[i - 1]][sequence[i]] + data.matrizAdj[sequence[j]][sequence[j + 1]];
-    a_somar = data.matrizAdj[sequence[i]][sequence[j + 1]] + data.matrizAdj[sequence[j]][sequence[i - 1]];
+    if (pos1 != 0)
+    {
+        Solution::connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[0]);
 
-    delta = a_somar - a_subtrair;
+        for (int i = 1; i < pos1; i++)
+        {
+            Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
+        }
 
-    return delta;
+        Solution::connect(data, actualTime, newPenalty, this->sequence[pos1 - 1], this->sequence[pos2]);
+    }
+    else
+    {
+        Solution::connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[pos2]);
+    }
+
+    for (int i = pos2 - 1; i >= pos1; i--)
+    {
+        Solution::connect(data, actualTime, newPenalty, this->sequence[i + 1], this->sequence[i]);
+    }
+
+    if (pos2 != data.totalRequests - 1)
+    {
+        Solution::connect(data, actualTime, newPenalty, this->sequence[pos1], this->sequence[pos2 + 1]);
+
+        for (int i = pos2 + 1; i < data.totalRequests - 1; i++)
+        {
+            Solution::connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
+        }
+    }
+
+    return newPenalty - this->penalty;
 }
 
 double Solution::evaluateOrOpt(const int i, const int j, const int n)
