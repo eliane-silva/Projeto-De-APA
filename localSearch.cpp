@@ -160,6 +160,7 @@ Solution ILS(int maxIter, int maxIterIls)
             }
             s.copy(best);
             s.perturbation();
+            s.updatePenalty();
             iterIls++;
         }
 

@@ -24,6 +24,8 @@ struct Solution
 
     void print();
 
+    void updatePenalty();
+
     void copy(const Solution &other);
 
     static void connect(Data &data, int &actualTime, double &penalty, int a, int b);
@@ -33,8 +35,6 @@ struct Solution
     double evaluate2Opt(const int i, const int j);
 
     double evaluateOrOpt(const int i, const int j, const int n);
-
-    double evaluateDoubleBridge(const int pos1, const int len1, const int pos2, const int len2);
 
     void swap(const int i, const int j);
 
