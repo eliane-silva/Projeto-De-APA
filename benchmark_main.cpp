@@ -70,7 +70,7 @@ int main()
     auto start_time = std::chrono::system_clock::now();
     auto start_time_c = std::chrono::system_clock::to_time_t(start_time);
     auto *start_local_time = std::localtime(&start_time_c);
-    std::cout << "Tempo inicial da execução do benchmark: "
+    std::cout << "Tempo inicial da execucao do benchmark: "
               << std::put_time(start_local_time, "%H:%M:%S") << "\n";
 
     Data &data = Data::getInstance();
@@ -101,7 +101,7 @@ int main()
         int hours = elapsed_seconds / 3600;
         int minutes = (elapsed_seconds % 3600) / 60;
         int seconds = elapsed_seconds % 60;
-        std::cout << "Tempo desde o início da execução do benchmark: "
+        std::cout << "Tempo desde o inicio da execucao do benchmark: "
                   << std::setfill('0') << std::setw(2) << hours << ":"
                   << std::setw(2) << minutes << ":"
                   << std::setw(2) << seconds << "\n";
@@ -110,7 +110,7 @@ int main()
     auto now = std::chrono::system_clock::now();
     auto now_c = std::chrono::system_clock::to_time_t(now);
     auto local_time = std::localtime(&now_c);
-    std::cout << "Tempo final da execução do benchmark: "
+    std::cout << "Tempo final da execucao do benchmark: "
               << std::put_time(local_time, "%H:%M:%S") << std::endl;
     return 0;
 }
