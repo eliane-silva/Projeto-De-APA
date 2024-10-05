@@ -38,7 +38,7 @@ void executeAlgorithm(const std::string &path_output, std::string &instance)
     std::cout.rdbuf(file.rdbuf());
 
     int max_iter_ILS = data.totalRequests >= 150 ? data.totalRequests / 2 : data.totalRequests;
-    ILSBenchmark(1, max_iter_ILS);
+    ILSBenchmark(50, max_iter_ILS);
 
     std::cout.rdbuf(cout_buffer);
     file.close();
