@@ -3,7 +3,7 @@
 
 void Solution::print()
 {
-    std::cout << "Penalty: ";
+    std::cout << "Sequence: ";
     for (int i = 0; i < Data::getInstance().totalRequests - 1; i++)
     {
         std::cout << sequence[i] << " - ";
@@ -69,7 +69,7 @@ double calculateSingleInsertionDelta(Solution &s, int insertionPosition, int sel
 
         Solution::connect(data, actualTime, penalty, s.sequence[solutionSize - 1], selectedJuice);
     }
-    else 
+    else
     {
         Solution::connect(data, actualTime, penalty, data.totalRequests, s.sequence[0]);
 
@@ -108,7 +108,8 @@ std::vector<InsertionInfo> calculateInsertionPenaltiesList(Solution &s, std::vec
         }
     }
 
-    std::sort(penaltiesList.begin(), penaltiesList.end(), [](InsertionInfo a, InsertionInfo b) { return a.penalty < b.penalty; });
+    std::sort(penaltiesList.begin(), penaltiesList.end(), [](InsertionInfo a, InsertionInfo b)
+              { return a.penalty < b.penalty; });
 
     return penaltiesList;
 }
@@ -349,96 +350,78 @@ double Solution::evaluateOrOpt(const int pos1, const int pos2, const int tam)
     int actualTime = 0;
     double newPenalty = 0;
 
-    //i<j
-    if(pos1 < pos2)
-    {   
-        //conexão do i ou até o i
-        if(pos1 == -1)
+    if (pos1 < pos2)
+    {
+        if (pos1 == -1)
         {
-            connect(data, actualTime, penalty, data.totalRequests, this->sequence[pos2]);
+            connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[pos2]);
         }
-        else{
-            connect(data, actualTime, penalty, data.totalRequests, this->sequence[0]);
-            for(int k = 0; k < pos1; k++)
+        else
+        {
+            connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[0]);
+            for (int i = 0; i < pos1; i++)
             {
-                connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+                connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
             }
             connect(data, actualTime, newPenalty, this->sequence[pos1], this->sequence[pos2]);
         }
 
-        //adicionando o j depois o i
-        for(int l = pos2; l < pos2 + tam - 1; l++)
+        for (int i = pos2; i < pos2 + tam - 1; i++)
         {
-            connect(data, actualTime, penalty, this->sequence[l], this->sequence[l+1]);
+            connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
         }
 
-        //adicionar o que está entre o i e o j
-        connect(data, actualTime, penalty, this->sequence[pos2+tam-1], this->sequence[pos1+1]);
-        for(int k = pos1+1; k < pos2 - 1; k++)
+        connect(data, actualTime, newPenalty, this->sequence[pos2 + tam - 1], this->sequence[pos1 + 1]);
+
+        for (int i = pos1 + 1; i < pos2 - 1; i++)
         {
-            connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+            connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
         }
 
-        //verificando se há algo depois do j+n
-        if(pos2+tam-1<data.totalRequests)
+        if (pos2 + tam < data.totalRequests)
         {
+            connect(data, actualTime, newPenalty, this->sequence[pos2 - 1], this->sequence[pos2 + tam]);
 
-            //conectar o o j-1 com o j+n
-            connect(data, actualTime, penalty, this->sequence[pos2-1], this->sequence[pos2+tam]);
-
-            for(int m= pos2 + tam; m < data.totalRequests - 1; m++)
+            for (int i = pos2 + tam; i < data.totalRequests - 1; i++)
             {
-                connect(data, actualTime, penalty, this->sequence[m], this->sequence[m+1]);
+                connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
             }
-        }       
+        }
     }
-
-    //j<i
     else
-    {   
-        //caso o j seja a primeira posição
-        if(pos2 == 0)
+    {
+        if (pos2 == 0)
         {
-            //verificando se há algo entre j+n ate o i
-            //conexão até o i
-            connect(data, actualTime, penalty, data.totalRequests, this->sequence[pos2+tam]);
+            connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[pos2 + tam]);
         }
-
-        //caso o j nao seja a primeira posição
-        else{
-            connect(data, actualTime, penalty, data.totalRequests, this->sequence[0]);
-            for(int k = 0; k < pos2 - 1; k++)
+        else
+        {
+            connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[0]);
+            for (int i = 0; i < pos2 - 1; i++)
             {
-                connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+                connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
             }
-
-            //verificando se há algo entre j+n ate o i
-            //conexão até o i
-            connect(data, actualTime, penalty, this->sequence[pos2-1], this->sequence[pos2+tam]);
+            connect(data, actualTime, newPenalty, this->sequence[pos2 - 1], this->sequence[pos2 + tam]);
         }
 
-        for(int k = pos2 + tam; k < pos1; k++)
+        for (int i = pos2 + tam; i < pos1; i++)
         {
-            connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+            connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
+        }
+        connect(data, actualTime, newPenalty, this->sequence[pos1], this->sequence[pos2]);
+        for (int i = pos2; i < pos2 + tam - 1; i++)
+        {
+            connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
         }
 
-        connect(data, actualTime, penalty, this->sequence[pos1], this->sequence[pos2]);
-
-        //conectando o j + n depois do i
-        for(int k = pos2; k < pos2 + tam - 1; k++)
+        if (pos1 < data.totalRequests - 1)
         {
-            connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
-        }
-
-        //verificando se há algo depois do i para inserir depois do j + n
-        if(pos1 != data.totalRequests - 1)
-        {
-            connect(data, actualTime, penalty, this->sequence[pos2+tam-1], this->sequence[pos1+1]);
-            for(int k = pos1+1; k < data.totalRequests - 1; k++)
+            connect(data, actualTime, newPenalty, this->sequence[pos2 + tam - 1], this->sequence[pos1 + 1]);
+            for (int i = pos1 + 1; i < data.totalRequests - 1; i++)
             {
-                connect(data, actualTime, penalty, this->sequence[k], this->sequence[k+1]);
+                connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
             }
-        } 
+        }
     }
 
     return newPenalty - this->penalty;
@@ -448,7 +431,7 @@ void Solution::swap(const int i, const int j)
 {
     Data &data = Data::getInstance();
     penalty += evaluateSwap(i, j); // somar a diferença de custo da solução após sofrer um movimento
-                                // implica em atualizar o custo da solução
+                                   // implica em atualizar o custo da solução
     int aux = sequence[i];
     sequence[i] = sequence[j];
     sequence[j] = aux;

@@ -12,9 +12,9 @@ void executeTSPAlgorithm(char **argv)
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    Solution s = solve();
-    // int maxIterILS = data.totalRequests >= 150 ? data.totalRequests / 2 : data.totalRequests;
-    // Solution s = ILS(50, maxIterILS);
+    // Solution s = solve();
+    int maxIterILS = data.totalRequests >= 150 ? data.totalRequests / 2 : data.totalRequests;
+    Solution s = ILS(50, maxIterILS);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> programDuration = end - start;
@@ -29,9 +29,9 @@ int main(int argc, char **argv)
 {
     if (argc == 1)
     {
-        std::cout << "\nNo arguments were provided. Using a default instance: 'instancias/exemplo_simples.txt'.\n";
+        std::cout << "\nNo arguments were provided. Using a default instance: 'instancias/n60A.txt'.\n";
         argc++;
-        argv[1] = (char *)"instancias/exemplo_simples.txt";
+        argv[1] = (char *)"instancias/n60A.txt";
     }
     else if (argc > 2)
     {

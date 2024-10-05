@@ -145,9 +145,12 @@ Solution ILS(int maxIter, int maxIterIls)
 
     for (int i = 0; i < maxIter; i++)
     {
+        std::cout << "Current Construction.....: " << i + 1 << "/" << maxIter << "\n";
+        std::cout << "Current BestOfAll Penalty: " << bestOfAll.penalty << "\n\n";
         Solution s;
         s.greedyBuild();
-        Solution best = s;
+        Solution best;
+        best.copy(s);
 
         int iterIls = 0;
         while (iterIls <= maxIterIls)
@@ -155,7 +158,7 @@ Solution ILS(int maxIter, int maxIterIls)
             RVND(s);
             if (s.penalty < best.penalty)
             {
-                best = s;
+                best.copy(s);
                 iterIls = 0;
             }
             s.copy(best);
@@ -165,7 +168,12 @@ Solution ILS(int maxIter, int maxIterIls)
         }
 
         if (best.penalty < bestOfAll.penalty)
-            bestOfAll = best;
+        {
+            std::cout << "\tOld BestOfAll Penalty: " << bestOfAll.penalty << "\n";
+            std::cout << "\tNew BestOfAll Penalty: " << best.penalty << "\n";
+            std::cout << "\tDelta........: " << best.penalty - bestOfAll.penalty << "\n\n";
+            bestOfAll.copy(best);
+        }
     }
     return bestOfAll;
 }

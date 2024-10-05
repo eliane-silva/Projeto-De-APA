@@ -1,10 +1,10 @@
 all: lisrun
 	
 lisrun:
-	g++ *.cpp -o tsp -O3
+	g++ *.cpp -o suco -O3
 
 run:
-	start ./tsp
+	start ./suco
 
 clean:
-	rm ./tsp
+	rm ./suco
