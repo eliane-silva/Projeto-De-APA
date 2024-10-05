@@ -38,7 +38,7 @@ void executeAlgorithm(const std::string &path_output, std::string &instance)
     std::cout.rdbuf(file.rdbuf());
 
     int max_iter_ILS = data.totalRequests >= 150 ? data.totalRequests / 2 : data.totalRequests;
-    ILSBenchmark(50, max_iter_ILS);
+    ILSBenchmark(1, max_iter_ILS);
 
     std::cout.rdbuf(cout_buffer);
     file.close();
@@ -64,18 +64,24 @@ int main()
 
     int executions = 5;
 
-    int numInstances = sizeof(instances) / sizeof(instances[0]);
-    std::cout << "\nTotal de instancias que serao executadas: " << numInstances * executions << std::endl;
+    int num_instances = sizeof(instances) / sizeof(instances[0]);
+    std::cout << "\nTotal de instancias que serao executadas: " << num_instances * executions << "\n";
+
+    auto start_time = std::chrono::system_clock::now();
+    auto start_time_c = std::chrono::system_clock::to_time_t(start_time);
+    auto *start_local_time = std::localtime(&start_time_c);
+    std::cout << "Tempo inicial da execução do benchmark: "
+              << std::put_time(start_local_time, "%H:%M:%S") << "\n";
 
     Data &data = Data::getInstance();
-    for (int i = 0; i < numInstances; i++)
+    for (int i = 0; i < num_instances; i++)
     {
         std::string instance_path = path_input + "\\" + instances[i] + ".txt";
         char *argv[2];
         argv[1] = const_cast<char *>(instance_path.c_str());
 
         data.read(2, argv);
-        std::cout << "\n\nInstancia atual: " << instances[i] << "\n";
+        std::cout << "\nInstancia atual: " << instances[i] << "\n";
         for (int j = 0; j < executions; j++)
         {
             auto now = std::chrono::high_resolution_clock::now();
@@ -86,7 +92,25 @@ int main()
             executeAlgorithm(path_output, instances[i]);
         }
         data.clear();
+
+        std::cout << "\n\nTotal de instancias executadas ate o momento: {" << (i + 1) * executions << "/" << num_instances * executions << "}\n";
+
+        auto now_current = std::chrono::system_clock::now();
+        auto elapsed_time = now_current - start_time;
+        auto elapsed_seconds = std::chrono::duration_cast<std::chrono::seconds>(elapsed_time).count();
+        int hours = elapsed_seconds / 3600;
+        int minutes = (elapsed_seconds % 3600) / 60;
+        int seconds = elapsed_seconds % 60;
+        std::cout << "Tempo desde o início da execução do benchmark: "
+                  << std::setfill('0') << std::setw(2) << hours << ":"
+                  << std::setw(2) << minutes << ":"
+                  << std::setw(2) << seconds << "\n";
     }
 
+    auto now = std::chrono::system_clock::now();
+    auto now_c = std::chrono::system_clock::to_time_t(now);
+    auto local_time = std::localtime(&now_c);
+    std::cout << "Tempo final da execução do benchmark: "
+              << std::put_time(local_time, "%H:%M:%S") << std::endl;
     return 0;
 }
