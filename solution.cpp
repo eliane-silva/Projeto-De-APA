@@ -22,7 +22,7 @@ void Solution::updatePenalty()
 
     for (int i = 0; i < data.totalRequests - 1; i++)
     {
-        Solution::connect(data, actualTime, penalty, this->sequence[i], this->sequence[i + 1]);
+        connect(data, actualTime, penalty, this->sequence[i], this->sequence[i + 1]);
     }
 
     this->penalty = penalty;
@@ -187,117 +187,19 @@ double Solution::evaluateSwap(const int pos1, const int pos2)
     int actualTime = 0;
     double newPenalty = 0;
 
-    if (pos1 == pos2 - 1)
+    int aux = this->sequence[pos1];
+    this->sequence[pos1] = this->sequence[pos2];
+    this->sequence[pos2] = aux;
+
+    connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[0]);
+
+    for (int i = 1; i < data.totalRequests; i++)
     {
-        if (pos1 == 0)
-        {
-            int juice1 = this->sequence[pos1];
-            int juice2 = this->sequence[pos2];
-            int juiceAfter2 = this->sequence[pos2 + 1];
-
-            Solution::connect(data, actualTime, newPenalty, data.totalRequests, juice2);
-            Solution::connect(data, actualTime, newPenalty, juice2, juice1);
-            Solution::connect(data, actualTime, newPenalty, juice1, juiceAfter2);
-
-            for (int i = pos2 + 2; i < data.totalRequests; i++)
-            {
-                Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
-            }
-        }
-        else if (pos2 == data.totalRequests - 1)
-        {
-            int juice1 = this->sequence[pos1];
-            int juice2 = this->sequence[pos2];
-            int juiceBefore1 = this->sequence[pos1 - 1];
-
-            Solution::connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[0]);
-
-            for (int i = 1; i < pos1; i++)
-            {
-                Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
-            }
-
-            Solution::connect(data, actualTime, newPenalty, juiceBefore1, juice2);
-            Solution::connect(data, actualTime, newPenalty, juice2, juice1);
-        }
-        else
-        {
-            int juice1 = this->sequence[pos1];
-            int juice2 = this->sequence[pos2];
-            int juiceBefore1 = this->sequence[pos1 - 1];
-            int juiceAfter2 = this->sequence[pos2 + 1];
-
-            Solution::connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[0]);
-
-            for (int i = 1; i < pos1; i++)
-            {
-                Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
-            }
-
-            Solution::connect(data, actualTime, newPenalty, juiceBefore1, juice2);
-            Solution::connect(data, actualTime, newPenalty, juice2, juice1);
-            Solution::connect(data, actualTime, newPenalty, juice1, juiceAfter2);
-
-            for (int i = pos2 + 2; i < data.totalRequests; i++)
-            {
-                Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
-            }
-        }
+        connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
     }
-    else
-    {
-        if (pos1 == 0)
-        {
-            int juice2 = this->sequence[pos2];
-            int juiceAfter1 = this->sequence[pos1 + 1];
 
-            Solution::connect(data, actualTime, newPenalty, data.totalRequests, juice2);
-            Solution::connect(data, actualTime, newPenalty, juice2, juiceAfter1);
-
-            for (int i = pos1 + 2; i < pos2; i++)
-            {
-                Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
-            }
-        }
-        else
-        {
-            int juice2 = this->sequence[pos2];
-            int juiceBefore1 = this->sequence[pos1 - 1];
-            int juiceAfter1 = this->sequence[pos1 + 1];
-
-            Solution::connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[0]);
-
-            for (int i = 1; i < pos1; i++)
-            {
-                Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
-            }
-
-            Solution::connect(data, actualTime, newPenalty, juiceBefore1, juice2);
-            Solution::connect(data, actualTime, newPenalty, juice2, juiceAfter1);
-
-            for (int i = pos1 + 2; i < pos2; i++)
-            {
-                Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
-            }
-        }
-
-        int juice1 = this->sequence[pos1];
-        int juiceBefore2 = this->sequence[pos2 - 1];
-
-        Solution::connect(data, actualTime, newPenalty, juiceBefore2, juice1);
-
-        if (pos2 != data.totalRequests - 1)
-        {
-            int juiceAfter2 = this->sequence[pos2 + 1];
-
-            Solution::connect(data, actualTime, newPenalty, juice1, juiceAfter2);
-
-            for (int i = pos2 + 2; i < data.totalRequests; i++)
-            {
-                Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
-            }
-        }
-    }
+    this->sequence[pos2] = this->sequence[pos1];
+    this->sequence[pos1] = aux;
 
     return newPenalty - this->penalty;
 }
@@ -311,32 +213,32 @@ double Solution::evaluate2Opt(const int pos1, const int pos2)
 
     if (pos1 != 0)
     {
-        Solution::connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[0]);
+        connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[0]);
 
         for (int i = 1; i < pos1; i++)
         {
-            Solution::connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
+            connect(data, actualTime, newPenalty, this->sequence[i - 1], this->sequence[i]);
         }
 
-        Solution::connect(data, actualTime, newPenalty, this->sequence[pos1 - 1], this->sequence[pos2]);
+        connect(data, actualTime, newPenalty, this->sequence[pos1 - 1], this->sequence[pos2]);
     }
     else
     {
-        Solution::connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[pos2]);
+        connect(data, actualTime, newPenalty, data.totalRequests, this->sequence[pos2]);
     }
 
     for (int i = pos2 - 1; i >= pos1; i--)
     {
-        Solution::connect(data, actualTime, newPenalty, this->sequence[i + 1], this->sequence[i]);
+        connect(data, actualTime, newPenalty, this->sequence[i + 1], this->sequence[i]);
     }
 
     if (pos2 != data.totalRequests - 1)
     {
-        Solution::connect(data, actualTime, newPenalty, this->sequence[pos1], this->sequence[pos2 + 1]);
+        connect(data, actualTime, newPenalty, this->sequence[pos1], this->sequence[pos2 + 1]);
 
         for (int i = pos2 + 1; i < data.totalRequests - 1; i++)
         {
-            Solution::connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
+            connect(data, actualTime, newPenalty, this->sequence[i], this->sequence[i + 1]);
         }
     }
 
