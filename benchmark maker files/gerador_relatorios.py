@@ -48,11 +48,12 @@ def process_files(folder_path, exit_csv):
                     csvwriter.writerow([parent_folder] + lines)
 
     df = pd.read_csv(exit_csv)
+    os.remove(exit_csv)
     return df
 
 
 def process_dataframe(entry_df, exit_csv):
-    actual_time = datetime.now().strftime("%M_%S")
+    actual_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
     exit_csv = exit_csv.replace(".csv", f"-{actual_time}.csv")
 
     columns = [
@@ -169,10 +170,29 @@ def process_dataframe(entry_df, exit_csv):
 
     final_df = merged_df[final_columns]
     
+    final_df["Tempo Medio - Construcao"] *= 1000
+    final_df["Tempo Medio - RVND"] *= 1000
+    final_df["GAP - Construcao"] *= 100
+    final_df["GAP - RVND"] *= 100
+    final_df["GAP - Metaheuristica"] *= 100
+    
+    final_df.rename(columns={
+        "Tempo Medio - Construcao": "Tempo Medio (ms) - Construcao",
+        "Tempo Medio - RVND": "Tempo Medio (ms) - RVND",
+        "Tempo Medio - Metaheuristica": "Tempo Medio (s) - Metaheuristica",
+        "GAP - Construcao": "GAP (%) - Construcao",
+        "GAP - RVND": "GAP (%) - RVND",
+        "GAP - Metaheuristica": "GAP (%) - Metaheuristica",
+    }, inplace=True)
+    
     final_df.to_csv(exit_csv, index=True, sep=";", decimal=".")
     print(f"Arquivo de saída gerado: {exit_csv}")
 
 
-caminho_pasta = r"C:\Users\Lucas\Documents\GitHub\Projeto-De-APA\benchmark\instancias"
-relatorio = process_files(caminho_pasta, "informacoes.csv")
+folders_path_lucas = r"C:\Users\Lucas\Documents\GitHub\Projeto-De-APA\benchmark\instancias"
+folders_path_eliane = ""
+folders_path_weslley = ""
+
+path_input = folders_path_lucas
+relatorio = process_files(path_input, "informacoes.csv")
 process_dataframe(relatorio, "relatorio.csv")
