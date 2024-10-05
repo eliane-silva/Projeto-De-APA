@@ -15,4 +15,6 @@ Solution solve();
 
 Solution ILS(int maxIter, int maxIterIls);
 
+void ILSBenchmark(int maxIter, int maxIterIls);
+
 #endif // LOCAL_SEARCH_H

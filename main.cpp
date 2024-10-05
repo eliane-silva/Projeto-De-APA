@@ -4,7 +4,7 @@
 #include <iostream>
 #include "localSearch.h"
 
-void executeTSPAlgorithm(char **argv)
+void executeAlgorithm(char **argv)
 {
     Data &data = Data::getInstance();
 
@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     }
 
     srand(time(NULL));
-    executeTSPAlgorithm(argv);
+    executeAlgorithm(argv);
 
     return 0;
 }

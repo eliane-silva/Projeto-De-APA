@@ -5,7 +5,7 @@
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/output",  // Caminho para o executável
+            "program": "${workspaceFolder}/suco",  // Caminho para o executável
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -1,5 +1,8 @@
 #include "localSearch.h"
 #include "stdlib.h"
+#include <chrono>
+#include <numeric>
+#include <algorithm>
 #include <iostream>
 
 void RVND(Solution &s)
@@ -176,4 +179,85 @@ Solution ILS(int maxIter, int maxIterIls)
         }
     }
     return bestOfAll;
+}
+
+void ILSBenchmark(int maxIter, int maxIterIls)
+{
+    auto metaheuristic_start = std::chrono::high_resolution_clock::now();
+
+    std::chrono::_V2::system_clock::time_point start;
+    std::chrono::_V2::system_clock::time_point end;
+
+    std::vector<double> construction_times;
+    std::vector<double> construction_penalties;
+    std::vector<double> rvnd_times;
+    std::vector<double> rvnd_penalties;
+
+    Solution bestOfAll;
+    bestOfAll.penalty = INFINITY;
+
+    for (int i = 0; i < maxIter; i++)
+    {
+        Solution s;
+
+        start = std::chrono::high_resolution_clock::now();
+        s.greedyBuild();
+        end = std::chrono::high_resolution_clock::now();
+        construction_times.push_back(std::chrono::duration<double>(end - start).count());
+        construction_penalties.push_back(s.penalty);
+
+        Solution best;
+        best.copy(s);
+
+        int iterIls = 0;
+        while (iterIls <= maxIterIls)
+        {
+            start = std::chrono::high_resolution_clock::now();
+            RVND(s);
+            end = std::chrono::high_resolution_clock::now();
+            rvnd_times.push_back(std::chrono::duration<double>(end - start).count());
+            rvnd_penalties.push_back(s.penalty);
+
+            if (s.penalty < best.penalty)
+            {
+                best.copy(s);
+                iterIls = 0;
+            }
+            s.copy(best);
+            s.perturbation();
+            s.updatePenalty();
+            iterIls++;
+        }
+
+        if (best.penalty < bestOfAll.penalty)
+        {
+            bestOfAll.copy(best);
+        }
+    }
+
+    auto metaheuristic_end = std::chrono::high_resolution_clock::now();
+    double metaheuristic_time = std::chrono::duration<double>(metaheuristic_end - metaheuristic_start).count();
+    double metaheuristic_penalty = bestOfAll.penalty;
+
+    double construction_mean_time = std::accumulate(construction_times.begin(), construction_times.end(), 0.0) / construction_times.size();
+    double rvnd_mean_time = std::accumulate(rvnd_times.begin(), rvnd_times.end(), 0.0) / rvnd_times.size();
+
+    double construction_best_penalty = *std::min_element(construction_penalties.begin(), construction_penalties.end());
+    double rvnd_best_penalty = *std::min_element(rvnd_penalties.begin(), rvnd_penalties.end());
+
+    double construction_mean_penalty = std::accumulate(construction_penalties.begin(), construction_penalties.end(), 0) / construction_penalties.size();
+    double rvnd_mean_penalty = std::accumulate(rvnd_penalties.begin(), rvnd_penalties.end(), 0) / rvnd_penalties.size();
+
+    std::cout << construction_times.size() << ",";
+    std::cout << construction_mean_penalty << ",";
+    std::cout << construction_best_penalty << ",";
+    std::cout << construction_mean_time << "\n";
+
+    std::cout << rvnd_times.size() << ",";
+    std::cout << rvnd_mean_penalty << ",";
+    std::cout << rvnd_best_penalty << ",";
+    std::cout << rvnd_mean_time << "\n";
+
+    std::cout << metaheuristic_penalty << ",";
+    std::cout << metaheuristic_time << std::endl;
 }

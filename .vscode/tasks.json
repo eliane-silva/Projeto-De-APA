@@ -12,7 +12,7 @@
                 "localSearch.cpp",
                 "solution.cpp",
                 "-o",
-                "output"  // Nome do executável
+                "suco"  // Nome do executável
             ],
             "group": {
                 "kind": "build",

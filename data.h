@@ -20,6 +20,8 @@ public:
     static Data &getInstance();
 
     static void read(int, char **);
+
+    static void clear();
 };
 extern void readData(int, char **, int *, int **, int **, int **, int ***);
 #endif // DATA_H

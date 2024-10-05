@@ -60,7 +60,6 @@ void readData(int argc, char **argv, int *totalRequests, int **productionTimes, 
             file >> prept[i][j];
     }
 
-    std::cout << endl;
     *totalRequests = totr;
     *productionTimes = prodt;
     *deadlines = dl;
@@ -100,4 +99,25 @@ void Data::read(int argc, char **argv)
     instance->deadlines = deadlines;
     instance->delayPenalties = delayPenalties;
     instance->preparationTimes = preparationTimes;
+}
+
+void Data::clear()
+{
+    Data &data = Data::getInstance();
+
+    delete[] data.productionTimes;
+    delete[] data.deadlines;
+    delete[] data.delayPenalties;
+
+    for (int i = 0; i <= data.totalRequests; i++)
+        delete[] data.preparationTimes[i];
+
+    delete[] data.preparationTimes;
+
+    // Resetar os ponteiros e variáveis para valores seguros
+    data.totalRequests = -1;
+    data.productionTimes = nullptr;
+    data.deadlines = nullptr;
+    data.delayPenalties = nullptr;
+    data.preparationTimes = nullptr;
 }
