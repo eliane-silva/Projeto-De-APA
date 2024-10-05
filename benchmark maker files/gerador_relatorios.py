@@ -1,6 +1,7 @@
 import os
 import csv
 import pandas as pd
+import numpy as np
 from datetime import datetime
 
 
@@ -142,15 +143,23 @@ def process_dataframe(entry_df, exit_csv):
         aggregated_data, optimum_values_df, on="Instancia", how="inner"
     )
 
-    merged_df["GAP - Construcao"] = (
-        merged_df["Menor Multa - Construcao"] - merged_df["Otimo"]
-    ) / merged_df["Otimo"]
-    merged_df["GAP - RVND"] = (
-        merged_df["Menor Multa - RVND"] - merged_df["Otimo"]
-    ) / merged_df["Otimo"]
-    merged_df["GAP - Metaheuristica"] = (
-        merged_df["Menor Multa - Metaheuristica"] - merged_df["Otimo"]
-    ) / merged_df["Otimo"]
+    merged_df["GAP - Construcao"] = np.where(
+        (merged_df["Menor Multa - Construcao"] == 0) & (merged_df["Otimo"] == 0),
+        0,
+        (merged_df["Menor Multa - Construcao"] - merged_df["Otimo"]) / merged_df["Otimo"]
+    )
+
+    merged_df["GAP - RVND"] = np.where(
+        (merged_df["Menor Multa - RVND"] == 0) & (merged_df["Otimo"] == 0),
+        0,
+        (merged_df["Menor Multa - RVND"] - merged_df["Otimo"]) / merged_df["Otimo"]
+    )
+
+    merged_df["GAP - Metaheuristica"] = np.where(
+        (merged_df["Menor Multa - Metaheuristica"] == 0) & (merged_df["Otimo"] == 0),
+        0,
+        (merged_df["Menor Multa - Metaheuristica"] - merged_df["Otimo"]) / merged_df["Otimo"]
+    )
 
     final_columns = [
         "Otimo",
