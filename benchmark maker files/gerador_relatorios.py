@@ -194,7 +194,7 @@ def process_dataframe(entry_df, exit_csv):
         "GAP - Metaheuristica": "GAP (%) - Metaheuristica",
     }, inplace=True)
     
-    final_df.to_csv(exit_csv, index=True, sep=";", decimal=".")
+    final_df.to_csv(exit_csv, index=True, sep=";", decimal=",")
     print(f"Arquivo de saída gerado: {exit_csv}")
 
 
