@@ -1,14 +1,13 @@
 #include "localSearch.h"
-#include "stdlib.h"
 #include <chrono>
-#include <numeric>
-#include <algorithm>
 #include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <numeric>
 
 void RVND(Solution &s)
 {
-
-    std::vector<int> NL = {1, 2, 3, 4, 5}; // NL = {1, 2, 3, 4, 5} após implementar os movimentos de vizinhança
+    std::vector<int> NL = {1, 2, 3, 4, 5};
     bool improved = false;
 
     while (NL.empty() == false)
@@ -37,7 +36,7 @@ void RVND(Solution &s)
         }
 
         if (improved)
-            NL = {1, 2, 3, 4, 5}; // NL = {1, 2, 3, 4, 5} após implementar os movimentos de vizinhança
+            NL = {1, 2, 3, 4, 5};
         else
             NL.erase(NL.begin() + n);
     }
@@ -129,26 +128,14 @@ bool bestImprovementOrOpt(Solution &s, int n)
     return improved;
 }
 
-Solution solve()
-{
-    Solution s = Solution();
-    // s.buildTrivial();
-    s.greedyBuild();
-    std::cout << "Solucao inicial:" << std::endl;
-    s.print();
-    std::cout << "Solucao final:" << std::endl;
-    RVND(s);
-    return s;
-}
-
-Solution ILS(int maxIter, int maxIterIls)
+Solution ILS(int constructions, int maxIterIls)
 {
     Solution bestOfAll;
     bestOfAll.penalty = INFINITY;
 
-    for (int i = 0; i < maxIter; i++)
+    for (int i = 0; i < constructions; i++)
     {
-        std::cout << "Current Construction.....: " << i + 1 << "/" << maxIter << "\n";
+        std::cout << "Current Construction.....: " << i + 1 << "/" << constructions << "\n";
         std::cout << "Current BestOfAll Penalty: " << bestOfAll.penalty << "\n\n";
         Solution s;
         s.greedyBuild();
@@ -181,7 +168,7 @@ Solution ILS(int maxIter, int maxIterIls)
     return bestOfAll;
 }
 
-void ILSBenchmark(int maxIter, int maxIterIls)
+void ILSBenchmark(int constructions, int maxIterIls)
 {
     auto metaheuristic_start = std::chrono::high_resolution_clock::now();
 
@@ -196,7 +183,7 @@ void ILSBenchmark(int maxIter, int maxIterIls)
     Solution bestOfAll;
     bestOfAll.penalty = INFINITY;
 
-    for (int i = 0; i < maxIter; i++)
+    for (int i = 0; i < constructions; i++)
     {
         Solution s;
 

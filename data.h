@@ -1,11 +1,8 @@
 #ifndef DATA_H
 #define DATA_H
 
-#include <vector>
-
 class Data
 {
-
 private:
     static Data *instance;
     Data();
@@ -23,5 +20,7 @@ public:
 
     static void clear();
 };
-extern void readData(int, char **, int *, int **, int **, int **, int ***);
+
+void readData(int, char **, int *, int **, int **, int **, int ***);
+
 #endif // DATA_H

@@ -1,11 +1,9 @@
 #include "data.h"
-#include <time.h>
+#include "localSearch.h"
 #include <chrono>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <sstream>
-#include "localSearch.h"
 
 void executeAlgorithm(const std::string &path_output, std::string &instance)
 {
@@ -37,7 +35,7 @@ void executeAlgorithm(const std::string &path_output, std::string &instance)
     std::streambuf *cout_buffer = std::cout.rdbuf();
     std::cout.rdbuf(file.rdbuf());
 
-    int max_iter_ILS = data.totalRequests >= 150 ? data.totalRequests / 2 : data.totalRequests;
+    int max_iter_ILS = data.totalRequests;
     ILSBenchmark(50, max_iter_ILS);
 
     std::cout.rdbuf(cout_buffer);

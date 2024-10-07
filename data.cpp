@@ -1,34 +1,30 @@
 #include "data.h"
 #include <iostream>
-#include <cstdlib>
 #include <fstream>
-#include <cmath>
-
-using namespace std;
 
 void readData(int argc, char **argv, int *totalRequests, int **productionTimes, int **deadlines, int **delayPenalties, int ***preparationTimes)
 {
     if (argc < 2)
     {
-        cout << "\nFaltando parametros\n";
-        cout << " ./exec [Instancia] " << endl;
+        std::cout << "\nFaltando parametros\n";
+        std::cout << " ./exec [Instancia] " << std::endl;
         exit(1);
     }
     else if (argc > 2)
     {
-        cout << "\nMuitos parametros\n";
-        cout << " ./exec [Instancia] " << endl;
+        std::cout << "\nMuitos parametros\n";
+        std::cout << " ./exec [Instancia] " << std::endl;
         exit(1);
     }
 
     char *instancePath;
     instancePath = argv[1];
 
-    ifstream file(instancePath, ios::in);
+    std::ifstream file(instancePath, std::ios::in);
 
     if (!file)
     {
-        cout << "arquivo nao pode ser aberto\n";
+        std::cout << "arquivo nao pode ser aberto\n";
         exit(1);
     }
 

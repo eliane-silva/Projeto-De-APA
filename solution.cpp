@@ -1,5 +1,7 @@
 #include "solution.h"
 #include <iostream>
+#include <algorithm>
+#include <cmath>
 
 void Solution::print()
 {
@@ -332,8 +334,7 @@ double Solution::evaluateOrOpt(const int pos1, const int pos2, const int tam)
 void Solution::swap(const int i, const int j)
 {
     Data &data = Data::getInstance();
-    penalty += evaluateSwap(i, j); // somar a diferença de custo da solução após sofrer um movimento
-                                   // implica em atualizar o custo da solução
+    penalty += evaluateSwap(i, j);
     int aux = sequence[i];
     sequence[i] = sequence[j];
     sequence[j] = aux;

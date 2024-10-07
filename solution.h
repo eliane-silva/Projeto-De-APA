@@ -3,9 +3,6 @@
 
 #include "data.h"
 #include <vector>
-#include <algorithm>
-#include <set>
-#include <cmath>
 
 struct Solution
 {
