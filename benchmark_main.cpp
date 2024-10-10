@@ -36,7 +36,7 @@ void executeAlgorithm(const std::string &path_output, std::string &instance)
     std::cout.rdbuf(file.rdbuf());
 
     int max_iter_ILS = data.totalRequests;
-    ILSBenchmark(50, max_iter_ILS);
+    ILSBenchmark(1, 200);
 
     std::cout.rdbuf(cout_buffer);
     file.close();
@@ -48,19 +48,23 @@ int main()
     std::string path_input_eliane = "";
     std::string path_input_weslley = "";
 
-    std::string path_output_lucas = "C:\\Users\\Lucas\\Documents\\GitHub\\Projeto-De-APA\\benchmark\\instancias";
+    std::string path_output_lucas = "C:\\Users\\Lucas\\Documents\\GitHub\\Projeto-De-APA\\benchmark";
     std::string path_output_eliane = "";
     std::string path_output_weslley = "";
 
+    // std::string instances[] = {
+    //     "n60A", "n60B", "n60C", "n60D", "n60E",
+    //     "n60F", "n60G", "n60H", "n60I", "n60J",
+    //     "n60K", "n60L", "n60M", "n60N", "n60O", "n60P"};
     std::string instances[] = {
-        "n60A", "n60B", "n60C", "n60D", "n60E",
-        "n60F", "n60G", "n60H", "n60I", "n60J",
-        "n60K", "n60L", "n60M", "n60N", "n60O", "n60P"};
+        "n200A",
+        "n300A",
+        "n400A"};
 
     std::string path_input = path_input_lucas;
     std::string path_output = path_output_lucas;
 
-    int executions = 5;
+    int executions = 1;
 
     int num_instances = sizeof(instances) / sizeof(instances[0]);
     std::cout << "\nTotal de instancias que serao executadas: " << num_instances * executions << "\n";

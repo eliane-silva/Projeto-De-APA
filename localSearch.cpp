@@ -247,4 +247,6 @@ void ILSBenchmark(int constructions, int maxIterIls)
 
     std::cout << metaheuristic_penalty << ",";
     std::cout << metaheuristic_time << std::endl;
+
+    bestOfAll.print();
 }
